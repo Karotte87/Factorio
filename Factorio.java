@@ -10,17 +10,40 @@ public class Factorio {
 		File fac = new File("Factorio.txt");
 		FileReader fr = new FileReader(fac);
 		BufferedReader br = new BufferedReader(fr);
+		
+		String name;
 		String[] tmp;
-		String[] tmp2;
-		String[] tmp3;
-		String educts;
-		String products;
+		String str;
+		Product p;
 		float divider = 1;
+		float multiplier;
+		boolean flag = false;
+		
 		while ((str = br.readLine()) != null){
+			if (flag){
+				str = str.replaceAll("{|}|\"|,", "").trim();
+				if (!str.isEmpty){
+					tmp = str.split(" ");
+					p = ProductFactory.getInstance(tmp[0]);
+					multiplier = tmp[1];
+				}
+			} else if (str.contains("type = ")){
+				
+			} else if (str.contains("name = ")){
+				name = str.split("\"")[1];
+			} else if (str.contains("ingredients =")){
+				flag = true;
+			} else if (flag && str.trim().equals("},")){
+				flag = false;
+			} else if (str.contains("result_count = ")){
+				divider = Float.parse(str.split("=")[1].replace(",", "").trim());
+			}
+			
+			
 			tmp = str.split(":");
 			name = tmp[0];
 			if (name.contains("x ")){
-				divider = Integer.parse(name.split("x ")[0].trim());
+				divider = Float.parse(name.split("x ")[0]);
 				name = name.split(" ")[1];
 			}
 			Product p = ProductFactory.getInstance(name);
@@ -45,9 +68,10 @@ public class Factorio {
 				for (i = 0; i < tmp2.length; i++){
 					tmp3 = tmp[i].split("x ");
 					float multiplier = Float.parse(tmp3[0].trim());
-					p.addProduct(new Resource(multiplier, ProductFactory.getInstance(tmp3[1].trim())));
+					p.addProduct(new Resource(multiplier / divider, ProductFactory.getInstance(tmp3[1].trim())));
 				}
 			}
+			divider = 1;
 		}
 	}
 	
