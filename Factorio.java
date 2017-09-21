@@ -1,179 +1,128 @@
+package products;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
 public class Factorio {
-	
 	List<Product> allProducts = new LinkedList<>();
-	
-	public Factorio(){
-		readFile();
-	}
-	
-	public void readFile(){
-		File fac = new File("Factorio.txt");
-		FileReader fr = new FileReader(fac);
-		BufferedReader br = new BufferedReader(fr);
-		
-		String name;
-		String[] tmp;
-		String str;
-		Product p;
-		float divider = 1;
-		float multiplier;
-		boolean flag = false;
-		
-		while ((str = br.readLine()) != null){
-			if (flag){
-				str = str.replaceAll("{|}|\"|,", "").trim();
-				if (!str.isEmpty){
-					tmp = str.split(" ");
-					p = ProductFactory.getInstance(tmp[0]);
-					multiplier = tmp[1];
-				}
-			} else if (str.contains("type = ")){
-				
-			} else if (str.contains("name = ")){
-				name = str.split("\"")[1];
-			} else if (str.contains("ingredients =")){
-				flag = true;
-			} else if (flag && str.trim().equals("},")){
-				flag = false;
-			} else if (str.contains("result_count = ")){
-				divider = Float.parse(str.split("=")[1].replace(",", "").trim());
-			}
-			
-			
-			tmp = str.split(":");
-			name = tmp[0];
-			if (name.contains("x ")){
-				divider = Float.parse(name.split("x ")[0]);
-				name = name.split(" ")[1];
-			}
-			Product p = ProductFactory.getInstance(name);
-			allProducts.add(p);
-			
-			tmp = tmp[1].split(";");
-			educts = tmp[0];
-			
-			p.setTime(Float.parse(tmp[1].trim()));
-			
-			if (tmp.length == 3){
-				products = tmp[2];
-			}
-			tmp2 = educts.split(",");
-			for (i = 0; i < tmp2.length; i++){
-				tmp3 = tmp[i].split("x ");
-				float multiplier = Float.parse(tmp3[0].trim());
-				p.addEduct(new Resource(multiplier / divider, ProductFactory.getInstance(tmp3[1].trim())));
-			}
-			if (tmp.length == 3){
-				tmp2 = products.split(",");
-				for (i = 0; i < tmp2.length; i++){
-					tmp3 = tmp[i].split("x ");
-					float multiplier = Float.parse(tmp3[0].trim());
-					p.addProduct(new Resource(multiplier / divider, ProductFactory.getInstance(tmp3[1].trim())));
-				}
-			}
-			divider = 1;
+
+	public Factorio() {
+		try {
+			readFile();
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
-	
-	public void showResources(String name){
+
+	public void readFile() throws NumberFormatException, IOException {
+		File recipes = new File("D:\\Spiele\\Factorio\\data\\base\\prototypes\\recipe");
+		File[] files = recipes.listFiles();
+		for (File file : files) {
+			if (file.getName().contains("demo-")) {
+				continue;
+			}
+			System.out.println(file.getName());
+			FileReader fr = new FileReader(file);
+			BufferedReader br = new BufferedReader(fr);
+
+			String name;
+			String[] tmp;
+			String str;
+			List<Resource> educts = new LinkedList<>();
+			List<Resource> products = new LinkedList<>();
+			Product p = null;
+			float multiplier;
+			float time = 0.5F;
+			boolean flag = false;
+			boolean ignore = false;
+			int whitelines = 0;
+
+			while ((str = br.readLine()) != null) {
+				if (str.contains("type = \"recipe\"")) { // ein neues rezept fängt an
+					System.out.println("new recipe");
+					ignore = false;
+					whitelines = 0;
+					if (p != null) {
+						p.setTime(time);
+						p.setEducts(educts);
+					}
+					time = 0.5F;
+					p = null;
+				} else if (ignore) {
+					continue;
+				} else if (str.contains("expensive =")) { // expensive wird vorerst ignoriert
+					ignore = true;
+				} else if (p != null && str.contains(p.getName()) && str.contains("result =")) {
+					continue;
+				} else if (flag) { // flag bedeutet, man befindet sich in den ingredients
+					str = str.replace("}", "").replace(",", "").replace("{", "").replace("\"", "").trim();
+
+					if (str.contains("type=fluid")) { // type=fluid -> special edukt
+						tmp = str.split(" ");
+						name = tmp[1].split("=")[1];
+						multiplier = Float.parseFloat(tmp[2].split("=")[1].trim());
+						educts.add(new Resource(multiplier, ProductFactory.getInstance(name)));
+					} else if (whitelines == 1 && str.trim().isEmpty()) { // ingredients vorbei
+						flag = false;
+						System.out.println("flag = " + flag);
+						continue;
+					} else if (str.trim().isEmpty()) {
+						whitelines++;
+						continue;
+					} else if (str.contains("type=item")) {
+						tmp = str.trim().split(" ");
+						educts.add(new Resource(Float.parseFloat(tmp[2].split("=")[1]),
+								ProductFactory.getInstance(tmp[1].split("=")[1])));
+					} else { // normales edukt
+						tmp = str.split(" ");
+						// System.out.println("last else: " + tmp[0] + " " + tmp[1]);
+						if (p.getName().equals("discharge-defense-remote")) {
+							System.out.println("we're headin in");
+						}
+						educts.add(new Resource(Float.parseFloat(tmp[1]), ProductFactory.getInstance(tmp[0])));
+					}
+				} else if (str.contains("name = ")) { // der name des produkts
+					p = ProductFactory.getInstance(str.split("\"")[1]);
+					System.out.println("Product: " + p.getName());
+				} else if (str.trim().equals("ingredients =")) { // ingredients fängt an
+					flag = true;
+					System.out.println("Flag: " + flag);
+				} else if (str.contains("ingredients = ")) {
+					tmp = str.replace("}", "").replace(",", "").split("= ");
+					tmp = tmp[1].trim().split(" ");
+					educts.add(new Resource(Float.parseFloat(tmp[1]), ProductFactory.getInstance(tmp[0])));
+				} else if (str.contains("result_count = ")) { // anzahl der produkte, die auf einmal produziert werden
+					p.setResultCount(Integer.parseInt(str.split("=")[1].replace(",", "").trim()));
+				} else if (str.contains("energy_required")) {
+					time = Float.parseFloat(str.split("=")[1].replace(",", "").trim());
+				}
+			}
+			br.close();
+		}
+
+	}
+
+	public void showResources(String name) {
 		Product overview;
-		for (Product p : allProducts){
-			if (p.name.equals(name)){
+		for (Product p : allProducts) {
+			if (p.getName().equals(name)) {
 				overview = p;
 				break;
 			}
 		}
 		System.out.println();
 	}
-	
-	public static void main(String[] args){
+
+	public static void main(String[] args) {
 		Factorio fac = new Factorio();
-		fac.showOverview("Steel plate");
-	}
-}
-
-public class Resource{
-	
-	private float number;
-	private Product product;
-	
-	
-	
-	public float getNumber(){
-		return number;
-	}
-	
-	public void setNumber(float number){
-		this.number = number;
-	}
-	
-	public Product getProduct(){
-		return product;
-	}
-	
-	public void setProduct(Product product){
-		this.product = product;
-	}
-	
-	public String toString(){
-		return number + "x " + product.getName();
-	}
-}
-
-public class ProductFactory{
-	
-	private static List<Product> singletons = new LinkedList<>();
-	
-	public static Product getInstance(String name){
-		for (Product p : singletons){
-			if (name.equals(p.getName())){
-				return p;
-			}
-		}
-		Product p = new Product(name);
-		singletons.add(p);
-		return p;
-	}
-}
-
-public class Product {
-	
-	private String name;
-	private List<Resource> educts = new LinkedList<>();
-	private List<Resource> products = new LinkedList<>();
-	private float time;
-	
-	protected Product(String name){
-		this.name = name;
-	}
-	
-	public String getName(){
-		return name;
-	}
-	
-	public float getTime(){
-		return time;
-	}
-	
-	public void setTime(float time){
-		this.time = time;
-	}
-	
-	public List<Resource> getEducts(){
-		return educts;
-	}
-	
-	public void addEduct(Resource r){
-		if(!educts.contains(r))
-			educts.add(r);
-	}
-	
-	public List<Resource> getProducts(){
-		return products;
-	}
-	
-	public void addProduct(Resource r){
-		if(!products.contains(r))
-			products.add(r);
+		fac.showResources("Steel plate");
 	}
 }
