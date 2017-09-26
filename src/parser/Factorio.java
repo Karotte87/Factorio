@@ -1,3 +1,5 @@
+package parser;
+
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -5,6 +7,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+
+import products.Product;
+import products.ProductFactory;
+import util.Resource;
 
 public class Factorio {
 	List<Product> allProducts = new LinkedList<>();
@@ -20,12 +26,12 @@ public class Factorio {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void monitorP(String name) {
 		Product p = ProductFactory.getInstance(name);
-//		if(allProducts.contains(p)) {
-			System.out.println(p.toString());
-//		}
+		// if(allProducts.contains(p)) {
+		System.out.println(p.toString());
+		// }
 	}
 
 	public void readFile() throws NumberFormatException, IOException {
@@ -93,7 +99,7 @@ public class Factorio {
 					}
 				} else if (str.contains("name = ")) { // der name des produkts
 					p = ProductFactory.getInstance(str.split("\"")[1]);
-					if(p.getName().equals("steel-chest")) {
+					if (p.getName().equals("steel-chest")) {
 						System.out.println("Fire in the hole");
 					}
 				} else if (str.trim().equals("ingredients =")) { // ingredients fängt an
@@ -137,48 +143,25 @@ public class Factorio {
 		if (expanded) {
 			sb.append("\n");
 			for (Resource r : overview.getEducts()) {
-				sb.append(r.toString()+"\n");
+				sb.append(r.toString() + "\n");
 				for (Resource r2 : r.getProduct().getEducts()) {
-					sb.append(r2.toString()+"\n");
+					sb.append(r2.toString() + "\n");
 				}
-				
+
 			}
 			System.out.println(sb.toString());
 		}
-		
-	}
-	
-	public void researchJulian() {
-		Product overview = null;
-		StringBuilder sb = new StringBuilder();
-		for (Product p : allProducts) {
-			System.out.println(p.getName());
-			if (p.getName().equals(name)) {
-				overview = p;
-				break;
-			}
-		}
-		if (overview == null) {
-			System.out.println("Produkt nicht gefunden");
-			return;
-		}
-		sb.append(overview.toString());
-		System.out.println(sb.toString());
-		if (expanded+) {
-			sb.append("\n");
-			for (Resource r : overview.getEducts()) {
-				sb.append(r.toString()+"\n");
-				for (Resource r2 : r.getProduct().getEducts()) {
-					sb.append(r2.toString()+"\n");
-				}
-				
-			}
-			System.out.println(sb.toString());
-		}
+
 	}
 
 	public static void main(String[] args) {
 		Factorio fac = new Factorio();
 		fac.showResource("steel-chest", true);
+		
+	}
+
+	public List<Product> getAllProducts() {
+		// TODO Auto-generated method stub
+		return allProducts;
 	}
 }

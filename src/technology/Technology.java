@@ -44,4 +44,28 @@ public class Technology {
 	public void addPrerequisite(Technology prerequisite) {
 		prerequisites.add(prerequisite);
 	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Name: " + name + "\n");
+		sb.append("Effects: ");
+		if (effects.size() > 0) {
+			sb.append(effects.get(0).getName());
+			for (int i = 1; i < effects.size(); i++) {
+				sb.append(", " + effects.get(i).getName());
+			}
+		}
+		if (unit != null) {
+			sb.append("\nUnit:\n" + unit.toString());
+		}
+		sb.append("\nPrerequisites: ");
+		if (prerequisites.size() > 0) {
+			sb.append(prerequisites.get(0).getName());
+			for (int i = 1; i < prerequisites.size(); i++) {
+				sb.append(", " + prerequisites.get(i).getName());
+			}
+		}
+		sb.append("\n");
+		return sb.toString();
+	}
 }
