@@ -3,19 +3,19 @@ package util;
 import products.Product;
 
 public class Resource {
-	private float number;
+	private double number;
 	private Product product;
 
-	public Resource(float multiplier, Product instance) {
+	public Resource(double multiplier, Product instance) {
 		number = multiplier;
 		product = instance;
 	}
 
-	public float getNumber() {
+	public double getNumber() {
 		return number;
 	}
 
-	public void setNumber(float number) {
+	public void setNumber(double number) {
 		this.number = number;
 	}
 

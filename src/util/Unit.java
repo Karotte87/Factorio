@@ -9,7 +9,7 @@ public class Unit {
 
 	private int count;
 	private List<SciencePack> ingredients = new LinkedList<>();
-	private float time;
+	private double time;
 
 	public int getCount() {
 		return count;
@@ -27,11 +27,11 @@ public class Unit {
 		ingredients.add(ingredient);
 	}
 
-	public float getTime() {
+	public double getTime() {
 		return time;
 	}
 
-	public void setTime(float time) {
+	public void setTime(double time) {
 		this.time = time;
 	}
 
