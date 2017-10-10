@@ -4,15 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import products.ProductFactory;
-import science.SciencePack;
 import science.SciencePackFactory;
 import technology.Technology;
 import technology.TechnologyFactory;
@@ -102,7 +99,7 @@ public class Parser {
 			} else if (unit && str.contains("ingredients = ")) { // einzeilige Ingredients
 				u.addIngredient(SciencePackFactory.getInstance(str.split("\"")[1]));
 			} else if (unit && str.contains("time = ")) {
-				u.setTime(Float.parseFloat(str.split("=")[1].replaceAll(",", "").trim()));
+				u.setTime(Double.parseDouble(str.split("=")[1].replaceAll(",", "").trim()));
 			} else if (ingredients) {
 				if (str.contains("\"")) {
 					u.addIngredient(SciencePackFactory.getInstance(str.split("\"")[1]));
