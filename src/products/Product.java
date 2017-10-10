@@ -1,15 +1,15 @@
 package products;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import util.Resource;
 
 public class Product {
 	private String name;
-	private List<Resource> educts = new LinkedList<>();
-	private List<Resource> products = new LinkedList<>();
-	private float time = 0.5F;
+	private Set<Resource> educts = new HashSet<>();
+	private Set<Resource> products = new HashSet<>();
+	private double time = 0.5;
 	private int resultCount = 1;
 
 	protected Product(String name) {
@@ -20,19 +20,19 @@ public class Product {
 		return name;
 	}
 
-	public float getTime() {
+	public double getTime() {
 		return time;
 	}
 
-	public void setTime(float time) {
-		this.time = time;
+	public void setTime(double time2) {
+		this.time = time2;
 	}
 
-	public List<Resource> getEducts() {
+	public Set<Resource> getEducts() {
 		return educts;
 	}
 
-	public void setEducts(List<Resource> educts) {
+	public void setEducts(Set<Resource> educts) {
 		this.educts = educts;
 	}
 
@@ -41,11 +41,11 @@ public class Product {
 			educts.add(r);
 	}
 
-	public List<Resource> getProducts() {
+	public Set<Resource> getProducts() {
 		return products;
 	}
 
-	public void setProducts(List<Resource> products) {
+	public void setProducts(Set<Resource> products) {
 		this.products = products;
 	}
 
@@ -66,7 +66,7 @@ public class Product {
 		StringBuilder sb = new StringBuilder();
 		sb.append(name + ": ");
 		for (Resource r : educts) {
-			sb.append(r.toString()+" ");
+			sb.append(r.toString() + " ");
 		}
 		sb.append("; " + time);
 		return sb.toString();
